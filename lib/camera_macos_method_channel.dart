@@ -410,6 +410,21 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
     );
   }
 
+  @override
+  Future<void> setResolution(
+    PictureResolution resolution, {
+    /// The device id of the camera to use
+    required String deviceId,
+  }) {
+    return methodChannel.invokeMethod<void>(
+      'setResolution',
+      <String, dynamic>{
+        'deviceId': deviceId,
+        'resolution': resolution.name,
+      },
+    );
+  }
+
   String _onVideoRecordingFinishedCallbackName(String deviceId) {
     return "onVideoRecordingFinished_$deviceId";
   }

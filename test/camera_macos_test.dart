@@ -122,6 +122,12 @@ class MockCameraMacOSPlatform
   }) {
     throw UnimplementedError("");
   }
+
+  @override
+  Future<void> setResolution(PictureResolution resolution,
+      {required String deviceId}) {
+    throw UnimplementedError("");
+  }
 }
 
 void main() {

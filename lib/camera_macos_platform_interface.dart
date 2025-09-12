@@ -114,6 +114,13 @@ abstract class CameraMacOSPlatform extends PlatformInterface {
     throw UnimplementedError("");
   }
 
+  Future<void> setResolution(
+    PictureResolution resolution, {
+    required String deviceId,
+  }) {
+    throw UnimplementedError("");
+  }
+
   Future<void> toggleTorch(
     Torch torch, {
     required String deviceId,

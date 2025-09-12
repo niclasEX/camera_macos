@@ -96,7 +96,7 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
                 result(true)
             }
         case "takePicture", "toggleTorch", "startRecording", "stopRecording",
-            "setZoom", "setOrientation", "setVideoMirrored", "setFocusPoint":
+            "setZoom", "setOrientation", "setVideoMirrored", "setFocusPoint", "setResolution":
             guard let arguments = call.arguments as? [String: Any],
                 let deviceId = arguments["deviceId"] as? String,
                 let cameraInstance = deviceIdToCameraInstance[deviceId]
@@ -139,6 +139,37 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
                             }
                         }
                     }
+                }
+                result(nil)
+            case "setResolution":
+                guard let resolution = arguments["resolution"] as? String else {
+                    result(FlutterError(code: "INVALID_ARGUMENT", message: "Missing resolution", details: nil).toMap)
+                    return
+                }
+                // Update resSize & settingsAssistant similar to initialization
+                switch resolution {
+                case "low":
+                    cameraInstance.resSize = NSMakeSize(CGFloat(640), CGFloat(480))
+                    cameraInstance.settingsAssistant = AVOutputSettingsAssistant(preset: .preset640x480)
+                case "medium":
+                    cameraInstance.resSize = NSMakeSize(CGFloat(960), CGFloat(540))
+                    cameraInstance.settingsAssistant = AVOutputSettingsAssistant(preset: .preset960x540)
+                case "high":
+                    cameraInstance.resSize = NSMakeSize(CGFloat(1280), CGFloat(720))
+                    cameraInstance.settingsAssistant = AVOutputSettingsAssistant(preset: .preset1280x720)
+                case "veryHigh":
+                    cameraInstance.resSize = NSMakeSize(CGFloat(1920), CGFloat(1080))
+                    cameraInstance.settingsAssistant = AVOutputSettingsAssistant(preset: .preset1920x1080)
+                case "ultraHigh":
+                    cameraInstance.resSize = NSMakeSize(CGFloat(3840), CGFloat(2160))
+                    cameraInstance.settingsAssistant = AVOutputSettingsAssistant(preset: .preset3840x2160)
+                default:
+                    cameraInstance.resSize = nil
+                    cameraInstance.settingsAssistant = AVOutputSettingsAssistant(preset: .preset1280x720)
+                }
+                // Restart capture session to apply new dimensions for subsequent frames (soft approach: just affects scaling)
+                if let captureSession = cameraInstance.captureSession, captureSession.isRunning {
+                    // No need to stop inputs/outputs; resSize affects post-processing scaling.
                 }
                 result(nil)
             case "setFocusPoint":
