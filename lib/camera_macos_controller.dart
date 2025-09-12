@@ -127,6 +127,13 @@ class CameraMacOSController {
     );
   }
 
+  Future<void> setWhiteBalanceTemperature(double temperature) async {
+    _platformInstance.setWhiteBalanceTemperature(
+      temperature,
+      deviceId: deviceId,
+    );
+  }
+
   /// Getter that checks if a video is currently recording
   bool get isRecording =>
       (_platformInstance as MethodChannelCameraMacOS).isRecording;

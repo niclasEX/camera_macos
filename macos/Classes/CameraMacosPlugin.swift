@@ -96,7 +96,7 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
                 result(true)
             }
         case "takePicture", "toggleTorch", "startRecording", "stopRecording",
-            "setZoom", "setOrientation", "setVideoMirrored", "setFocusPoint", "setResolution", "setBrightness":
+            "setZoom", "setOrientation", "setVideoMirrored", "setFocusPoint", "setResolution", "setBrightness", "setWhiteBalance":
             guard let arguments = call.arguments as? [String: Any],
                 let deviceId = arguments["deviceId"] as? String,
                 let cameraInstance = deviceIdToCameraInstance[deviceId]
@@ -205,6 +205,40 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
                     result(nil)
                 } catch {
                     result(FlutterError(code: "SET_BRIGHTNESS_ERROR", message: error.localizedDescription, details: nil).toMap)
+                }
+            case "setWhiteBalance":
+                guard let temperature = arguments["temperature"] as? Double else {
+                    result(FlutterError(code: "INVALID_ARGUMENT", message: "Missing temperature", details: nil).toMap)
+                    return
+                }
+                let device = cameraInstance.videoDevice!
+                do {
+                    try device.lockForConfiguration()
+                    // Clamp temperature (Kelvin) typical camera range 3000K - 8000K
+                    let clampedTemp = max(3000.0, min(8000.0, temperature))
+                    // Convert Kelvin to gains approximation
+                    // Simple model: warmer temps reduce blue gain, cooler temps reduce red gain.
+                    let norm = (clampedTemp - 3000.0) / (8000.0 - 3000.0) // 0..1
+                    // Gains base range 1.0 - 2.0 (approx). Adjust to device limits after.
+                    var redGain = 2.0 - norm       // more red for cooler temps
+                    var blueGain = 1.0 + norm       // more blue for warmer temps
+                    var greenGain: Double = 1.0
+                    let minGain: Float = device.minWhiteBalanceGain
+                    let maxGain: Float = device.maxWhiteBalanceGain
+                    func clampGain(_ g: Double) -> Float { return max(minGain, min(Float(g), maxGain)) }
+                    let gains = AVCaptureDevice.WhiteBalanceGains(
+                        redGain: clampGain(redGain),
+                        greenGain: clampGain(greenGain),
+                        blueGain: clampGain(blueGain)
+                    )
+                    if device.isWhiteBalanceModeSupported(.locked) {
+                        device.whiteBalanceMode = .locked
+                    }
+                    device.setWhiteBalanceModeLocked(with: gains) { _ in }
+                    device.unlockForConfiguration()
+                    result(nil)
+                } catch {
+                    result(FlutterError(code: "SET_WHITE_BALANCE_ERROR", message: error.localizedDescription, details: nil).toMap)
                 }
             default:
                 result(FlutterMethodNotImplemented)

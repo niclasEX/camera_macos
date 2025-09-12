@@ -440,6 +440,21 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
     );
   }
 
+  @override
+  Future<void> setWhiteBalanceTemperature(
+    double temperature, {
+    /// The device id of the camera to use
+    required String deviceId,
+  }) {
+    return methodChannel.invokeMethod<void>(
+      'setWhiteBalance',
+      <String, dynamic>{
+        'deviceId': deviceId,
+        'temperature': temperature,
+      },
+    );
+  }
+
   String _onVideoRecordingFinishedCallbackName(String deviceId) {
     return "onVideoRecordingFinished_$deviceId";
   }

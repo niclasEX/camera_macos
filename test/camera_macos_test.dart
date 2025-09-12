@@ -12,10 +12,10 @@ class MockCameraMacOSPlatform
     implements CameraMacOSPlatform {
   @override
   Future<CameraMacOSArguments?> initialize({
-    String? deviceId,
+    required String deviceId,
     String? audioDeviceId,
     bool enableAudio = true,
-    bool isVideoMirrored = false,
+    bool isVideoMirrored = true,
     PictureFormat pictureFormat = PictureFormat.tiff,
     VideoFormat videoFormat = VideoFormat.mp4,
     PictureResolution resolution = PictureResolution.max,
@@ -31,7 +31,6 @@ class MockCameraMacOSPlatform
   @override
   Future<bool> startVideoRecording({
     required String deviceId,
-    CameraMacOSDevice? device,
     double? maxVideoDuration,
     String? url,
     bool? enableAudio,
@@ -55,7 +54,7 @@ class MockCameraMacOSPlatform
   }
 
   @override
-  Future<bool> destroy({
+  Future<bool?> destroy({
     required String deviceId,
   }) {
     throw UnimplementedError();
@@ -69,7 +68,7 @@ class MockCameraMacOSPlatform
 
   @override
   Future<void> startImageStream(
-    void Function(CameraImageData) onAvailable, {
+    void Function(CameraImageData?) onAvailable, {
     required String deviceId,
     void Function(dynamic)? onError,
   }) async {
@@ -85,7 +84,7 @@ class MockCameraMacOSPlatform
 
   @override
   Future<void> setFocusPoint(
-    Offset? point, {
+    Offset point, {
     required String deviceId,
   }) {
     throw UnimplementedError("");
@@ -134,6 +133,14 @@ class MockCameraMacOSPlatform
   @override
   Future<void> setBrightness(
     double brightness, {
+    required String deviceId,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setWhiteBalanceTemperature(
+    double temperature, {
     required String deviceId,
   }) {
     throw UnimplementedError();
