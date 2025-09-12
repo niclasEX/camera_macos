@@ -476,6 +476,21 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
     );
   }
 
+  @override
+  Future<void> setGain(
+    double gain, {
+    /// The device id of the camera to use
+    required String deviceId,
+  }) {
+    return methodChannel.invokeMethod<void>(
+      'setGain',
+      <String, dynamic>{
+        'deviceId': deviceId,
+        'gain': gain,
+      },
+    );
+  }
+
   String _onVideoRecordingFinishedCallbackName(String deviceId) {
     return "onVideoRecordingFinished_$deviceId";
   }

@@ -142,6 +142,13 @@ class CameraMacOSController {
     );
   }
 
+  Future<void> setGain(double gain) async {
+    _platformInstance.setGain(
+      gain,
+      deviceId: deviceId,
+    );
+  }
+
   /// Getter that checks if a video is currently recording
   bool get isRecording =>
       (_platformInstance as MethodChannelCameraMacOS).isRecording;

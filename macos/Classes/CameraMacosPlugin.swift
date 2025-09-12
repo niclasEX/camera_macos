@@ -96,7 +96,7 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
                 result(true)
             }
         case "takePicture", "toggleTorch", "startRecording", "stopRecording",
-            "setZoom", "setOrientation", "setVideoMirrored", "setFocusPoint", "setResolution", "setBrightness", "setWhiteBalance", "setExposure":
+            "setZoom", "setOrientation", "setVideoMirrored", "setFocusPoint", "setResolution", "setBrightness", "setWhiteBalance", "setExposure", "setGain":
             guard let arguments = call.arguments as? [String: Any],
                 let deviceId = arguments["deviceId"] as? String,
                 let cameraInstance = deviceIdToCameraInstance[deviceId]
@@ -275,6 +275,28 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
                     result(nil)
                 } catch {
                     result(FlutterError(code: "SET_EXPOSURE_ERROR", message: error.localizedDescription, details: nil).toMap)
+                }
+            case "setGain":
+                guard let gain = arguments["gain"] as? Double else {
+                    result(FlutterError(code: "INVALID_ARGUMENT", message: "Missing gain", details: nil).toMap)
+                    return
+                }
+                let device = cameraInstance.videoDevice!
+                do {
+                    try device.lockForConfiguration()
+                    let clamped = max(0.0, min(1.0, gain))
+                    let minISO = device.activeFormat.minISO
+                    let maxISO = device.activeFormat.maxISO
+                    let targetISO = minISO + CGFloat(clamped) * (maxISO - minISO)
+                    // Keep current duration, change ISO via custom exposure
+                    let duration = device.exposureDuration
+                    if device.isExposureModeSupported(.custom) {
+                        device.setExposureModeCustom(duration: duration, iso: targetISO) { _ in }
+                    }
+                    device.unlockForConfiguration()
+                    result(nil)
+                } catch {
+                    result(FlutterError(code: "SET_GAIN_ERROR", message: error.localizedDescription, details: nil).toMap)
                 }
             default:
                 result(FlutterMethodNotImplemented)

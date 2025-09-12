@@ -154,6 +154,14 @@ class MockCameraMacOSPlatform
   }) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> setGain(
+    double gain, {
+    required String deviceId,
+  }) {
+    throw UnimplementedError();
+  }
 }
 
 void main() {
