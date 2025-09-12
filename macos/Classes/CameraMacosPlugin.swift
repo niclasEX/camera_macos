@@ -130,6 +130,16 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
             case "setVideoMirrored":
                 cameraInstance.isVideoMirrored =
                     arguments["isVideoMirrored"] as? Bool ?? true
+                // Apply the updated mirroring flag immediately to all current video connections
+                if let captureSession = cameraInstance.captureSession {
+                    for output in captureSession.outputs {
+                        for connection in output.connections {
+                            if connection.isVideoMirroringSupported {
+                                connection.isVideoMirrored = cameraInstance.isVideoMirrored
+                            }
+                        }
+                    }
+                }
                 result(nil)
             case "setFocusPoint":
                 cameraInstance.setFocusPoint(arguments, result)
