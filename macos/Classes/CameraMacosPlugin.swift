@@ -96,7 +96,7 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
                 result(true)
             }
         case "takePicture", "toggleTorch", "startRecording", "stopRecording",
-            "setZoom", "setOrientation", "setVideoMirrored", "setFocusPoint", "setResolution":
+            "setZoom", "setOrientation", "setVideoMirrored", "setFocusPoint", "setResolution", "setBrightness":
             guard let arguments = call.arguments as? [String: Any],
                 let deviceId = arguments["deviceId"] as? String,
                 let cameraInstance = deviceIdToCameraInstance[deviceId]
@@ -174,6 +174,25 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
                 result(nil)
             case "setFocusPoint":
                 cameraInstance.setFocusPoint(arguments, result)
+            case "setBrightness":
+                guard let brightness = arguments["brightness"] as? Double else {
+                    result(FlutterError(code: "INVALID_ARGUMENT", message: "Missing brightness", details: nil).toMap)
+                    return
+                }
+                let device = cameraInstance.videoDevice!
+                do {
+                    try device.lockForConfiguration()
+                    // Map brightness (0.0 - 1.0) to exposureTargetBias range
+                    let minBias = device.minExposureTargetBias
+                    let maxBias = device.maxExposureTargetBias
+                    let clamped = max(0.0, min(1.0, brightness))
+                    let target = minBias + Float(clamped) * (maxBias - minBias)
+                    device.setExposureTargetBias(target) { _ in }
+                    device.unlockForConfiguration()
+                    result(nil)
+                } catch {
+                    result(FlutterError(code: "SET_BRIGHTNESS_ERROR", message: error.localizedDescription, details: nil).toMap)
+                }
             default:
                 result(FlutterMethodNotImplemented)
             }

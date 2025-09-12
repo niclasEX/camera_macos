@@ -121,6 +121,13 @@ abstract class CameraMacOSPlatform extends PlatformInterface {
     throw UnimplementedError("");
   }
 
+  Future<void> setBrightness(
+    double brightness, {
+    required String deviceId,
+  }) {
+    throw UnimplementedError("");
+  }
+
   Future<void> toggleTorch(
     Torch torch, {
     required String deviceId,

@@ -425,6 +425,21 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
     );
   }
 
+  @override
+  Future<void> setBrightness(
+    double brightness, {
+    /// The device id of the camera to use
+    required String deviceId,
+  }) {
+    return methodChannel.invokeMethod<void>(
+      'setBrightness',
+      <String, dynamic>{
+        'deviceId': deviceId,
+        'brightness': brightness,
+      },
+    );
+  }
+
   String _onVideoRecordingFinishedCallbackName(String deviceId) {
     return "onVideoRecordingFinished_$deviceId";
   }

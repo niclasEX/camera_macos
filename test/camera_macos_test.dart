@@ -124,9 +124,19 @@ class MockCameraMacOSPlatform
   }
 
   @override
-  Future<void> setResolution(PictureResolution resolution,
-      {required String deviceId}) {
+  Future<void> setResolution(
+    PictureResolution resolution, {
+    required String deviceId,
+  }) {
     throw UnimplementedError("");
+  }
+
+  @override
+  Future<void> setBrightness(
+    double brightness, {
+    required String deviceId,
+  }) {
+    throw UnimplementedError();
   }
 }
 

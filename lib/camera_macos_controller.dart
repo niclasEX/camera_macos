@@ -120,6 +120,13 @@ class CameraMacOSController {
     );
   }
 
+  Future<void> setBrightness(double brightness) async {
+    _platformInstance.setBrightness(
+      brightness,
+      deviceId: deviceId,
+    );
+  }
+
   /// Getter that checks if a video is currently recording
   bool get isRecording =>
       (_platformInstance as MethodChannelCameraMacOS).isRecording;
