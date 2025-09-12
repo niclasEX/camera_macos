@@ -121,7 +121,20 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
             case "stopRecording":
                 cameraInstance.stopRecording(result)
             case "setZoom":
-                cameraInstance.zoomLevel = arguments["zoom"] as? Double ?? 1.0
+                let requested = arguments["zoom"] as? Double ?? 1.0
+                cameraInstance.zoomLevel = requested
+                if let device = cameraInstance.videoDevice {
+                    do {
+                        try device.lockForConfiguration()
+                        let maxFactor = device.activeFormat.videoMaxZoomFactor
+                        let hw = max(CGFloat(1.0), min(CGFloat(requested), maxFactor))
+                        device.videoZoomFactor = hw
+                        cameraInstance.appliedHardwareZoom = hw
+                        device.unlockForConfiguration()
+                    } catch {
+                        cameraInstance.appliedHardwareZoom = 1.0
+                    }
+                }
                 result(nil)
             case "setOrientation":
                 cameraInstance.orientation =
@@ -342,6 +355,8 @@ public class CameraInstance: NSObject, FlutterTexture,
     var audioFormat: AudioFormatID = kAudioFormatAppleLossless
 
     var zoomLevel: Double = 1.0
+    // Hardware zoom factor applied directly (AVCaptureDevice.videoZoomFactor)
+    var appliedHardwareZoom: CGFloat = 1.0
     var zoomPixelBuffer: CVImageBuffer?
 
     var orientation: CGFloat = 0
