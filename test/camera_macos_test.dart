@@ -145,6 +145,15 @@ class MockCameraMacOSPlatform
   }) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> setExposure({
+    required String deviceId,
+    double? durationSeconds,
+    double? iso,
+  }) {
+    throw UnimplementedError();
+  }
 }
 
 void main() {

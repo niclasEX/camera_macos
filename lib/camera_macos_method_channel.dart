@@ -455,6 +455,27 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
     );
   }
 
+  @override
+  Future<void> setExposure({
+    /// The device id of the camera to use
+    required String deviceId,
+
+    /// Exposure duration in seconds
+    double? durationSeconds,
+
+    /// ISO value
+    double? iso,
+  }) {
+    return methodChannel.invokeMethod<void>(
+      'setExposure',
+      <String, dynamic>{
+        'deviceId': deviceId,
+        'durationSeconds': durationSeconds,
+        'iso': iso,
+      },
+    );
+  }
+
   String _onVideoRecordingFinishedCallbackName(String deviceId) {
     return "onVideoRecordingFinished_$deviceId";
   }

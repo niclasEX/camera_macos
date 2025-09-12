@@ -96,7 +96,7 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
                 result(true)
             }
         case "takePicture", "toggleTorch", "startRecording", "stopRecording",
-            "setZoom", "setOrientation", "setVideoMirrored", "setFocusPoint", "setResolution", "setBrightness", "setWhiteBalance":
+            "setZoom", "setOrientation", "setVideoMirrored", "setFocusPoint", "setResolution", "setBrightness", "setWhiteBalance", "setExposure":
             guard let arguments = call.arguments as? [String: Any],
                 let deviceId = arguments["deviceId"] as? String,
                 let cameraInstance = deviceIdToCameraInstance[deviceId]
@@ -239,6 +239,42 @@ public class CameraMacosPlugin: NSObject, FlutterPlugin {
                     result(nil)
                 } catch {
                     result(FlutterError(code: "SET_WHITE_BALANCE_ERROR", message: error.localizedDescription, details: nil).toMap)
+                }
+            case "setExposure":
+                let device = cameraInstance.videoDevice!
+                let requestedDurationSeconds = arguments["durationSeconds"] as? Double
+                let requestedISO = arguments["iso"] as? Double
+                do {
+                    try device.lockForConfiguration()
+                    if requestedDurationSeconds == nil && requestedISO == nil {
+                        // Return to auto
+                        if device.isExposureModeSupported(.continuousAutoExposure) {
+                            device.exposureMode = .continuousAutoExposure
+                        }
+                        device.unlockForConfiguration()
+                        result(nil)
+                        break
+                    }
+                    let minDuration = device.activeFormat.minExposureDuration
+                    let maxDuration = device.activeFormat.maxExposureDuration
+                    var duration = device.exposureDuration
+                    if let rd = requestedDurationSeconds {
+                        let requestedCM = CMTimeMakeWithSeconds(rd, preferredTimescale: 1_000_000_000)
+                        if requestedCM < minDuration { duration = minDuration }
+                        else if requestedCM > maxDuration { duration = maxDuration }
+                        else { duration = requestedCM }
+                    }
+                    let minISO = device.activeFormat.minISO
+                    let maxISO = device.activeFormat.maxISO
+                    var iso = device.iso
+                    if let rISO = requestedISO { iso = max(minISO, min(CGFloat(rISO), maxISO)) }
+                    if device.isExposureModeSupported(.custom) {
+                        device.setExposureModeCustom(duration: duration, iso: iso) { _ in }
+                    }
+                    device.unlockForConfiguration()
+                    result(nil)
+                } catch {
+                    result(FlutterError(code: "SET_EXPOSURE_ERROR", message: error.localizedDescription, details: nil).toMap)
                 }
             default:
                 result(FlutterMethodNotImplemented)

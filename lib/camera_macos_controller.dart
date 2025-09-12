@@ -134,6 +134,14 @@ class CameraMacOSController {
     );
   }
 
+  Future<void> setExposure({double? durationSeconds, double? iso}) async {
+    _platformInstance.setExposure(
+      deviceId: deviceId,
+      durationSeconds: durationSeconds,
+      iso: iso,
+    );
+  }
+
   /// Getter that checks if a video is currently recording
   bool get isRecording =>
       (_platformInstance as MethodChannelCameraMacOS).isRecording;
