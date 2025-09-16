@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:camera_macos/camera_capabilities.dart';
 import 'package:camera_macos/camera_macos_arguments.dart';
 import 'package:camera_macos/camera_macos_device.dart';
 import 'package:camera_macos/camera_macos_file.dart';
@@ -77,6 +78,9 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
 
       /// resolution of the output video/image
       PictureResolution resolution = PictureResolution.max,
+      int? width,
+      int? height,
+      double? fps,
 
       /// Enable Audio Recording
       bool enableAudio = true,
@@ -92,23 +96,31 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
       CameraOrientation orientation = CameraOrientation.orientation0deg,
       bool isVideoMirrored = true}) async {
     try {
+      final initArgs = <String, dynamic>{
+        "deviceId": deviceId,
+        "audioDeviceId": audioDeviceId,
+        "type": cameraMacOSMode.index,
+        "enableAudio": enableAudio,
+        'resolution': resolution.name,
+        'quality': audioQuality.name,
+        'orientation': orientation.index * 90.0,
+        'isVideoMirrored': isVideoMirrored,
+        'torch': toggleTorch.index,
+        'pformat': pictureFormat.name,
+        'vformat': videoFormat.name,
+        'aformat': audioFormat.index,
+      };
+      if (width != null && height != null) {
+        initArgs['width'] = width;
+        initArgs['height'] = height;
+      }
+      if (fps != null) {
+        initArgs['fps'] = fps;
+      }
       final Map<String, dynamic>? result =
           await methodChannel.invokeMapMethod<String, dynamic>(
         'initialize',
-        {
-          "deviceId": deviceId,
-          "audioDeviceId": audioDeviceId,
-          "type": cameraMacOSMode.index,
-          "enableAudio": enableAudio,
-          'resolution': resolution.name,
-          'quality': audioQuality.name,
-          'orientation': orientation.index * 90.0,
-          'isVideoMirrored': isVideoMirrored,
-          'torch': toggleTorch.index,
-          'pformat': pictureFormat.name,
-          'vformat': videoFormat.name,
-          'aformat': audioFormat.index,
-        },
+        initArgs,
       );
       if (result == null) {
         throw FlutterError("Invalid args: invalid platform response");
@@ -493,5 +505,34 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
 
   String _onVideoRecordingFinishedCallbackName(String deviceId) {
     return "onVideoRecordingFinished_$deviceId";
+  }
+
+  @override
+  Future<CameraCapabilities> getCapabilities({
+    required String deviceId,
+  }) async {
+    final map = await methodChannel.invokeMapMethod<String, dynamic>(
+      'getCapabilities',
+      <String, dynamic>{
+        'deviceId': deviceId,
+      },
+    );
+    final parsed = CameraCapabilities.fromMap(map ?? const {});
+    return parsed;
+  }
+
+  @override
+  Future<void> setFormat({
+    required String deviceId,
+    required int width,
+    required int height,
+    double? fps,
+  }) async {
+    await methodChannel.invokeMethod('setFormat', {
+      'deviceId': deviceId,
+      'width': width,
+      'height': height,
+      'fps': fps,
+    });
   }
 }

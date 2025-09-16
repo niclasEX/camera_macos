@@ -652,53 +652,52 @@ class MainContainerWidgetState extends State<MainContainerWidget> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              RadioListTile(
-                                title: Text("Photo"),
-                                contentPadding: EdgeInsets.zero,
-                                value: CameraMacOSMode.photo,
-                                groupValue: cameraMode,
+                              RadioGroup<CameraMacOSMode>(
+                                value: cameraMode,
                                 onChanged: (CameraMacOSMode? newMode) {
                                   setState(() {
                                     if (newMode != null) {
-                                      this.cameraMode = newMode;
+                                      cameraMode = newMode;
                                     }
                                   });
                                 },
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: RadioListTile(
+                                child: Column(
+                                  children: [
+                                    RadioListTile<CameraMacOSMode>(
+                                      title: Text("Photo"),
                                       contentPadding: EdgeInsets.zero,
-                                      title: Text("Video"),
-                                      value: CameraMacOSMode.video,
-                                      groupValue: cameraMode,
-                                      onChanged: (CameraMacOSMode? newMode) {
-                                        setState(() {
-                                          if (newMode != null) {
-                                            this.cameraMode = newMode;
-                                          }
-                                        });
-                                      },
+                                      value: CameraMacOSMode.photo,
                                     ),
-                                  ),
-                                  Visibility(
-                                    visible:
-                                        cameraMode == CameraMacOSMode.video,
-                                    child: Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12.0),
-                                        child: TextField(
-                                          controller: durationController,
-                                          decoration: InputDecoration(
-                                            labelText: "Video Length",
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: RadioListTile<CameraMacOSMode>(
+                                            contentPadding: EdgeInsets.zero,
+                                            title: Text("Video"),
+                                            value: CameraMacOSMode.video,
                                           ),
                                         ),
-                                      ),
+                                        Visibility(
+                                          visible: cameraMode ==
+                                              CameraMacOSMode.video,
+                                          child: Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 12.0),
+                                              child: TextField(
+                                                controller: durationController,
+                                                decoration: InputDecoration(
+                                                  labelText: "Video Length",
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           ),

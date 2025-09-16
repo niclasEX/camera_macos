@@ -34,6 +34,9 @@ abstract class CameraMacOSPlatform extends PlatformInterface {
     PictureFormat pictureFormat = PictureFormat.tiff,
     VideoFormat videoFormat = VideoFormat.mp4,
     PictureResolution resolution = PictureResolution.max,
+    int? width,
+    int? height,
+    double? fps,
     AudioFormat audioFormat = AudioFormat.kAudioFormatAppleLossless,
     AudioQuality audioQuality = AudioQuality.max,
     Torch toggleTorch = Torch.off,
@@ -159,6 +162,21 @@ abstract class CameraMacOSPlatform extends PlatformInterface {
 
   Future<bool?> destroy({
     required String deviceId,
+  }) {
+    throw UnimplementedError("");
+  }
+
+  Future<CameraCapabilities> getCapabilities({
+    required String deviceId,
+  }) {
+    throw UnimplementedError("");
+  }
+
+  Future<void> setFormat({
+    required String deviceId,
+    required int width,
+    required int height,
+    double? fps,
   }) {
     throw UnimplementedError("");
   }

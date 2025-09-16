@@ -1,0 +1,11 @@
+analyzer:
+  exclude:
+    - example/**
+    - build/**
+    - macos/Flutter/ephemeral/**
+  language:
+    strict-raw-types: false
+
+linter:
+  rules:
+    avoid_print: false

@@ -1,3 +1,4 @@
+import 'package:camera_macos/camera_capabilities.dart';
 import 'package:camera_macos/camera_macos_arguments.dart';
 import 'package:camera_macos/camera_macos_device.dart';
 import 'package:camera_macos/camera_macos_file.dart';
@@ -15,10 +16,13 @@ class MockCameraMacOSPlatform
     required String deviceId,
     String? audioDeviceId,
     bool enableAudio = true,
+    double? fps,
+    int? height,
     bool isVideoMirrored = true,
     PictureFormat pictureFormat = PictureFormat.tiff,
     VideoFormat videoFormat = VideoFormat.mp4,
     PictureResolution resolution = PictureResolution.max,
+    int? width,
     required CameraMacOSMode cameraMacOSMode,
     AudioFormat audioFormat = AudioFormat.kAudioFormatAppleLossless,
     AudioQuality audioQuality = AudioQuality.max,
@@ -159,6 +163,23 @@ class MockCameraMacOSPlatform
   Future<void> setGain(
     double gain, {
     required String deviceId,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<CameraCapabilities> getCapabilities({
+    required String deviceId,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setFormat({
+    required String deviceId,
+    required int width,
+    required int height,
+    double? fps,
   }) {
     throw UnimplementedError();
   }
